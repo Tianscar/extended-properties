@@ -170,6 +170,7 @@ final class Utils {
         CommentedProperties properties;
         ini.setSection(null, properties = ini.newSection());
         boolean readingSectionName = false;
+        String lastSectionName = null;
         int sectionNameBegin = -1, sectionNameEnd = -1;
         int mode = NONE, unicode = 0, count = 0;
         char nextChar;
@@ -304,13 +305,16 @@ final class Utils {
                                     comment.setLength(0);
                                 }
                                 String sectionName = temp.substring(sectionNameBegin, sectionNameEnd);
+                                if (sectionName.startsWith(".")) sectionName = lastSectionName == null ?
+                                        sectionName.substring(1) : lastSectionName + sectionName;
+                                lastSectionName = sectionName;
                                 readingSectionName = false;
                                 sectionNameBegin = sectionNameEnd = -1;
                                 ini.setSection(sectionName, (properties = ini.newSection()));
                             }
                             else if (!readingSectionName) {
-                                String key = temp.substring(0, keyLength);
-                                properties.put(key, temp.substring(keyLength));
+                                String key = removeQuotes(temp.substring(0, keyLength));
+                                properties.put(key, removeQuotes(temp.substring(keyLength)));
                                 if (readComments && comment.length() > 0) {
                                     properties.setComment(key, comment.substring(0, comment.length() - 1));
                                     comment.setLength(0);
@@ -358,6 +362,8 @@ final class Utils {
             String temp = new String(buf, 0, offset);
             if (readingSectionName && sectionNameBegin != -1 && sectionNameEnd != -1) {
                 String sectionName = temp.substring(sectionNameBegin, sectionNameEnd);
+                if (sectionName.startsWith(".")) sectionName = lastSectionName == null ?
+                        sectionName.substring(1) : lastSectionName + sectionName;
                 if (readComments && comment.length() > 0) {
                     properties.setFooter(comment.substring(0, comment.length() - 1));
                     comment.setLength(0);
@@ -365,8 +371,8 @@ final class Utils {
                 ini.setSection(sectionName, (properties = ini.newSection()));
             }
             else if (!readingSectionName) {
-                String key = temp.substring(0, keyLength);
-                properties.put(key, temp.substring(keyLength));
+                String key = removeQuotes(temp.substring(0, keyLength));
+                properties.put(key, removeQuotes(temp.substring(keyLength)));
                 if (readComments && comment.length() > 0) {
                     properties.setComment(key, comment.substring(0, comment.length() - 1));
                     comment.setLength(0);
@@ -374,6 +380,12 @@ final class Utils {
             }
         }
         if (readComments && comment.length() > 0) properties.setFooter(comment.substring(0, comment.length() - 1));
+    }
+
+    public static String removeQuotes(String str) {
+        if (str.startsWith("\"") && str.endsWith("\"")) return str.substring(1, str.length() - 1);
+        else if (str.startsWith("'") && str.endsWith("'")) return str.substring(1, str.length() - 1);
+        else return str;
     }
 
     private static final int NONE = 0, SLASH = 1, UNICODE = 2, CONTINUE = 3, KEY_DONE = 4, IGNORE = 5;
