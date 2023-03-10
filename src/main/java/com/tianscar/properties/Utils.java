@@ -276,7 +276,7 @@ final class Utils {
                             }
                             continue;
                         }
-                        else if (matchValue(delimiters, nextChar)) {
+                        else if (!readingSectionName && matchValue(delimiters, nextChar)) {
                             if (keyLength == -1) { // if parsing the key
                                 mode = NONE;
                                 keyLength = offset;
