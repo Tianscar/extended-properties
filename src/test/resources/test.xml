@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ini SYSTEM "https://dtd.tianscar.com/ini.dtd">
+<ini version="1.0">
+    <section name="section_1">
+        <entry key="&quot;nested2_val1'">1</entry>
+        <entry key="nested2_val0">0</entry>
+        <entry key="nested2_val2">"2'</entry>
+        <entry key="nested2_val3">3</entry>
+        <section name="nested_1">
+            <entry key="&quot;nested2_val1'">1</entry>
+            <entry key="nested2_val0">0</entry>
+            <entry key="nested2_val2">"2'</entry>
+            <entry key="nested2_val3">3</entry>
+            <section name="nested_2">
+                <entry key="&quot;nested2_val1'">1</entry>
+                <entry key="nested2_val0">0</entry>
+                <entry key="nested2_val2">"2'</entry>
+                <entry key="nested2_val3">3</entry>
+            </section>
+        </section>
+    </section>
+</ini>

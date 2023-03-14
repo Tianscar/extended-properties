@@ -113,9 +113,9 @@ public class CommentedProperties extends FilterProperties {
                 comment, escUnicode, writeDate, commentSign, delimiter, System.lineSeparator());
     }
 
-    public void store(Writer writer, String comment, boolean escUnicode, boolean writeDate, String commentSign, String delimiter, boolean cr, boolean lf) throws IOException {
+    public void store(Writer writer, String comment, boolean escUnicode, boolean writeDate, String commentSign, String delimiter, String lineSeparator) throws IOException {
         storeProperties(this, COMMENT_SIGNS, DELIMITERS, writer instanceof BufferedWriter ? writer : new BufferedWriter(writer),
-                comment, escUnicode, writeDate, commentSign, delimiter, makeLineSeparator(cr, lf));
+                comment, escUnicode, writeDate, commentSign, delimiter, checkLineSeparator(lineSeparator));
     }
 
     public void store(OutputStream out) throws IOException {
@@ -146,15 +146,15 @@ public class CommentedProperties extends FilterProperties {
     }
 
     public void store(OutputStream out, String comments, Charset charset,
-                      boolean escUnicode, boolean writeDate, String commentSign, String delimiter, boolean cr, boolean lf) throws IOException {
+                      boolean escUnicode, boolean writeDate, String commentSign, String delimiter, String lineSeparator) throws IOException {
         storeProperties(this, COMMENT_SIGNS, DELIMITERS, new BufferedWriter(new OutputStreamWriter(out, charset)),
-                comments, escUnicode, writeDate, commentSign, delimiter, makeLineSeparator(cr, lf));
+                comments, escUnicode, writeDate, commentSign, delimiter, checkLineSeparator(lineSeparator));
     }
 
     public void store(OutputStream out, String comments, String encoding,
-                      boolean escUnicode, boolean writeDate, String commentSign, String delimiter, boolean cr, boolean lf) throws IOException {
+                      boolean escUnicode, boolean writeDate, String commentSign, String delimiter, String lineSeparator) throws IOException {
         storeProperties(this, COMMENT_SIGNS, DELIMITERS, new BufferedWriter(new OutputStreamWriter(out, encoding)),
-                comments, escUnicode, writeDate, commentSign, delimiter, makeLineSeparator(cr, lf));
+                comments, escUnicode, writeDate, commentSign, delimiter, checkLineSeparator(lineSeparator));
     }
 
     @Override

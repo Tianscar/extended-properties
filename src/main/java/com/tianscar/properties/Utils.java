@@ -564,4 +564,10 @@ final class Utils {
         if (readComments && comment.length() > 0) properties.setFooter(comment.toString());
     }
 
+    public static String checkLineSeparator(String lineSeparator) {
+        if (lineSeparator == null) return System.lineSeparator();
+        else if (lineSeparator.equals("\n") || lineSeparator.equals("\r\n") || lineSeparator.equals("\r")) return lineSeparator;
+        else throw new IllegalArgumentException("invalid line separator: " + lineSeparator);
+    }
+
 }
