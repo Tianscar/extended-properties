@@ -194,19 +194,23 @@ public class CommentedProperties extends FilterProperties {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
         if (!super.equals(o)) return false;
 
         CommentedProperties that = (CommentedProperties) o;
 
-        if (!comments.equals(that.comments)) return false;
+        if (!comments().equals(that.comments())) return false;
         return getFooter() != null ? getFooter().equals(that.getFooter()) : that.getFooter() == null;
+    }
+
+    public boolean equalsIgnoreComments(Object o) {
+        return super.equals(o);
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + comments.hashCode();
+        result = 31 * result + (comments() != null ? comments().hashCode() : 0);
         result = 31 * result + (getFooter() != null ? getFooter().hashCode() : 0);
         return result;
     }

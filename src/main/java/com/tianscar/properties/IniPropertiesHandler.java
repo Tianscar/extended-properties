@@ -139,7 +139,7 @@ final class IniPropertiesHandler extends DefaultHandler {
                     last = tree;
                     String sectionName = sections.getKey();
                     do {
-                        tmp.add(new AbstractMap.SimpleEntry<>(ini.plainSectionName(sectionName), sections.getValue()));
+                        tmp.add(new AbstractMap.SimpleEntry<>(ini.plainSectionName(sectionName), ini.getSection(sectionName)));
                         sectionName = ini.parentSectionName(sectionName);
                     }
                     while (sectionName != null);

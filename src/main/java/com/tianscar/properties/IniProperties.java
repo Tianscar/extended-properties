@@ -292,14 +292,30 @@ public class IniProperties extends CommentedProperties {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
         if (!super.equals(o)) return false;
 
         IniProperties that = (IniProperties) o;
 
         if (!sections.equals(that.sections)) return false;
         if (!globalProperties.get().equals(that.globalProperties.get())) return false;
-        if (!currentSectionName.get().equals(that.currentSectionName.get())) return false;
+        if (currentSectionName.get() != null ? !currentSectionName.get().equals(that.currentSectionName.get()) : that.currentSectionName.get() != null)
+            return false;
+        return getPropertiesInitialCapacity() == that.getPropertiesInitialCapacity();
+    }
+
+    @Override
+    public boolean equalsIgnoreComments(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (!super.equalsIgnoreComments(o)) return false;
+
+        IniProperties that = (IniProperties) o;
+
+        if (!sections.equals(that.sections)) return false;
+        if (!globalProperties.get().equals(that.globalProperties.get())) return false;
+        if (currentSectionName.get() != null ? !currentSectionName.get().equals(that.currentSectionName.get()) : that.currentSectionName.get() != null)
+            return false;
         return getPropertiesInitialCapacity() == that.getPropertiesInitialCapacity();
     }
 
@@ -308,7 +324,7 @@ public class IniProperties extends CommentedProperties {
         int result = super.hashCode();
         result = 31 * result + sections.hashCode();
         result = 31 * result + globalProperties.get().hashCode();
-        result = 31 * result + currentSectionName.get().hashCode();
+        result = 31 * result + (currentSectionName.get() != null ? currentSectionName.get().hashCode() : 0);
         result = 31 * result + getPropertiesInitialCapacity();
         return result;
     }
