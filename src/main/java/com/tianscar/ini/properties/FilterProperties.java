@@ -38,9 +38,9 @@ public abstract class FilterProperties extends Properties {
      * to remember it for later use.
      *
      * @param properties the underlying {@link Properties}, or {@code null} if
-     *                   this instance is to be created without an underlying {@code Properties}.<br/>
-     *                   <b>Note: If the argument is null, you should override the {@link #properties()}
-     *                   method to provide a valid {@code Properties}.</b>
+     *                   this instance is to be created without an underlying {@code Properties}.
+     *                   <p><b>Note: If the argument is null, you should override the {@link #properties()}
+     *                   method to provide a valid {@code Properties}.</b></p>
      * @see #properties()
      */
     protected FilterProperties(Properties properties) {
