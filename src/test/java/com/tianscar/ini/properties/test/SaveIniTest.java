@@ -1,4 +1,6 @@
-import com.tianscar.iniproperties.IniProperties;
+package com.tianscar.ini.properties.test;
+
+import com.tianscar.ini.properties.IniProperties;
 
 import java.io.FileWriter;
 import java.nio.file.Files;
