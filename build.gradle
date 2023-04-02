@@ -5,8 +5,8 @@ plugins {
 }
 
 ext {
-    libraryName = 'Ini Properties'
-    libraryGroupName = 'com.tianscar.ini'
+    libraryName = 'Extended Properties'
+    libraryGroupName = 'com.tianscar.properties'
     libraryVendorName = 'Tianscar'
 
     libraryVersionCode = 1
@@ -45,13 +45,13 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = libraryGroupName
-            artifactId = 'properties'
+            artifactId = rootProject.name
             version = libraryVersionName
             from components.java
             pom {
                 name = libraryName
-                description = 'Lightweight, dependency-free expansion working around java.util.Properties, for ini support.'
-                url = 'https://github.com/Tianscar/ini-properties'
+                description = 'Lightweight, dependency-free expansion working around java.util.Properties, mainly for ini support.'
+                url = 'https://github.com/Tianscar/extended-properties'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
@@ -66,9 +66,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git@github.com/Tianscar/ini-properties.git'
-                    developerConnection = 'scm:git:git@github.com/Tianscar/ini-properties.git'
-                    url = 'https://github.com/Tianscar/ini-properties'
+                    connection = 'scm:git:git@github.com/Tianscar/extended-properties.git'
+                    developerConnection = 'scm:git:git@github.com/Tianscar/extended-properties.git'
+                    url = 'https://github.com/Tianscar/extended-properties'
                 }
             }
         }

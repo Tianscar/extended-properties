@@ -1,4 +1,4 @@
-package com.tianscar.ini.properties;
+package com.tianscar.properties;
 
 import java.io.*;
 import java.nio.charset.Charset;

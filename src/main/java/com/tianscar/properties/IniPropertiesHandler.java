@@ -1,4 +1,4 @@
-package com.tianscar.ini.properties;
+package com.tianscar.properties;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -16,7 +16,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import static com.tianscar.ini.properties.Utils.*;
+import static com.tianscar.properties.Utils.*;
 
 final class IniPropertiesHandler extends DefaultHandler {
 

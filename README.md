@@ -1,5 +1,5 @@
-# Ini Properties
-Lightweight, dependency-free expansion working around `java.util.Properties`, for ini support.
+# Extended Properties
+Lightweight, dependency-free expansion working around `java.util.Properties`, mainly for ini support.
 
 Requires Java 8 or later.
 
@@ -21,8 +21,8 @@ dependencies {
 ```
 
 ## Usage
-[JavaDoc](https://docs.tianscar.com/ini-properties)  
-[Examples](/src/test/java/com/tianscar/ini/properties/test)
+[JavaDoc](https://docs.tianscar.com/extended-properties)  
+[Examples](/src/test/java/com/tianscar/properties/test)
 
 ## License
 [Apache-2.0](/LICENSE) (c) Karstian Lee

@@ -1,4 +1,4 @@
-package com.tianscar.ini.properties;
+package com.tianscar.properties;
 
 import java.io.IOException;
 import java.io.Reader;

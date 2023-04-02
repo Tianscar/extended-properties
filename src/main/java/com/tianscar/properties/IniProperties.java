@@ -1,4 +1,4 @@
-package com.tianscar.ini.properties;
+package com.tianscar.properties;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -11,8 +11,8 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.tianscar.ini.properties.Utils.loadIni;
-import static com.tianscar.ini.properties.Utils.storeIni;
+import static com.tianscar.properties.Utils.loadIni;
+import static com.tianscar.properties.Utils.storeIni;
 
 /**
  * The {@link IniProperties} class represents a persistent set of

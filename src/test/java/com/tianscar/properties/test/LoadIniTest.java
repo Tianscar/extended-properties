@@ -1,6 +1,6 @@
-package com.tianscar.ini.properties.test;
+package com.tianscar.properties.test;
 
-import com.tianscar.ini.properties.IniProperties;
+import com.tianscar.properties.IniProperties;
 
 public class LoadIniTest {
 

@@ -1,4 +1,4 @@
-package com.tianscar.ini.properties;
+package com.tianscar.properties;
 
 /**
  * Characters that represent line breaks and indentation. These are represented
