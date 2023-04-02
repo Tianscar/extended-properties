@@ -1,4 +1,4 @@
-package com.tianscar.properties;
+package com.tianscar.iniproperties;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -16,7 +16,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import static com.tianscar.properties.Utils.convertToString;
+import static com.tianscar.iniproperties.Utils.*;
 
 final class IniPropertiesHandler extends DefaultHandler {
 
@@ -71,8 +71,8 @@ final class IniPropertiesHandler extends DefaultHandler {
     private static void writeEntries(XMLStreamWriter writer, Properties properties) throws XMLStreamException {
         if (properties.size() > 0) {
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-                String key = convertToString(entry.getKey());
-                String value = convertToString(entry.getValue());
+                String key = (String) entry.getKey();
+                String value = (String) entry.getValue();
                 writer.writeStartElement(ELEMENT_ENTRY);
                 writer.writeAttribute(ATTRIBUTE_KEY, key);
                 writer.writeCharacters(value);
@@ -135,19 +135,23 @@ final class IniPropertiesHandler extends DefaultHandler {
                 IniTreeNode tree = new IniTreeNode();
                 IniTreeNode last;
                 List<Map.Entry<String, Properties>> tmp = new LinkedList<>();
+                String sectionName;
+                Properties sectionProperties;
                 for (Map.Entry<String, Properties> sections : ini.sections().entrySet()) {
                     last = tree;
-                    String sectionName = sections.getKey();
+                    sectionName = sections.getKey();
                     do {
-                        tmp.add(new AbstractMap.SimpleEntry<>(ini.plainSectionName(sectionName), ini.getSection(sectionName)));
-                        sectionName = ini.parentSectionName(sectionName);
+                        tmp.add(new AbstractMap.SimpleEntry<>(plainSectionName(sectionName), ini.getSection(sectionName)));
+                        sectionName = parentSectionName(sectionName);
                     }
                     while (sectionName != null);
                     Collections.reverse(tmp);
                     for (Map.Entry<String, Properties> tmpEntry : tmp) {
                         sectionName = tmpEntry.getKey();
+                        sectionProperties = tmpEntry.getValue();
                         if (!last.hasChild(sectionName)) {
-                            last.children.add(new IniTreeNode(sectionName, tmpEntry.getValue()));
+                            if (sectionProperties.isEmpty()) break;
+                            last.children.add(new IniTreeNode(sectionName, sectionProperties));
                         }
                         last = last.getChild(sectionName);
                     }

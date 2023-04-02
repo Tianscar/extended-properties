@@ -1,4 +1,4 @@
-package com.tianscar.properties;
+package com.tianscar.iniproperties;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -22,57 +22,45 @@ final class Utils {
     }
 
     public static void writeHeader(String[] commentSigns, String[] delimiters, Writer writer, String comments,
-                                   boolean writeDate, String commentSign, String delimiter, String lineSeparator) throws IOException {
+                                   boolean writeDate, String commentSign, String delimiter) throws IOException {
         if (!matchValue(commentSigns, commentSign)) throw new IllegalArgumentException("invalid comment sign");
         if (!matchValue(delimiters, delimiter)) throw new IllegalArgumentException("invalid delimiter");
-        if (comments != null) writeComment(commentSigns, writer, comments, lineSeparator, commentSign);
+        if (comments != null) writeComment(commentSigns, writer, comments, commentSign);
         if (writeDate) {
             writer.write(commentSign);
             writer.write(new Date().toString());
-            writer.write(lineSeparator);
+            writer.write('\n');
         }
     }
 
     public static void storeIni(IniProperties ini, String[] commentSigns, String[] delimiters, Writer writer, String comments, boolean escUnicode,
-                                   boolean writeDate, String commentSign, String delimiter, String lineSeparator) throws IOException {
-        writeHeader(commentSigns, delimiters, writer, comments, writeDate, commentSign, delimiter, lineSeparator);
-        writeProperties(ini.getSection(null), commentSigns, delimiters, writer, escUnicode, delimiter, lineSeparator);
-        for (Map.Entry<String, Properties> sectionEntry : ini.sections.entrySet()) {
+                                   boolean writeDate, String commentSign, String delimiter) throws IOException {
+        writeHeader(commentSigns, delimiters, writer, comments, writeDate, commentSign, delimiter);
+        writeProperties(ini.getSection(null), commentSigns, delimiters, writer, escUnicode, delimiter);
+        Properties section;
+        for (Map.Entry<String, Properties> sectionEntry : ini.sections().entrySet()) {
+            if ((section = sectionEntry.getValue()).isEmpty()) continue;
             writer.write('[');
             dumpString(commentSigns, delimiters, writer, sectionEntry.getKey(), false, escUnicode);
             writer.write(']');
-            writer.write(lineSeparator);
-            writeProperties(sectionEntry.getValue(), commentSigns, delimiters, writer, escUnicode, delimiter, lineSeparator);
+            writer.write('\n');
+            writeProperties(section, commentSigns, delimiters, writer, escUnicode, delimiter);
         }
         writer.flush();
     }
 
-    public static void storeProperties(Properties properties, String[] commentSigns, String[] delimiters,
-                                       Writer writer, String comments, boolean escUnicode,
-                                       boolean writeDate, String commentSign, String delimiter, String lineSeparator) throws IOException {
-        writeHeader(commentSigns, delimiters, writer, comments, writeDate, commentSign, delimiter, lineSeparator);
-        writeProperties(properties, commentSigns, delimiters, writer, escUnicode, delimiter, lineSeparator);
-        writer.flush();
-    }
-
     public static void writeProperties(Properties properties, String[] commentSigns, String[] delimiters,
-                                       Writer writer, boolean escUnicode, String delimiter, String lineSeparator) throws IOException {
+                                       Writer writer, boolean escUnicode, String delimiter) throws IOException {
         Object key;
         Object value;
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             key = entry.getKey();
             value = entry.getValue();
-            dumpString(commentSigns, delimiters, writer, convertToString(key), true, escUnicode);
+            dumpString(commentSigns, delimiters, writer, (String) key, true, escUnicode);
             writer.write(delimiter);
-            dumpString(commentSigns, delimiters, writer, convertToString(value), false, escUnicode);
-            writer.write(lineSeparator);
+            dumpString(commentSigns, delimiters, writer, (String) value, false, escUnicode);
+            writer.write('\n');
         }
-    }
-
-    public static String convertToString(Object o) {
-        if (o instanceof String) return (String) o;
-        else if (o != null) return o.toString();
-        else throw new IllegalArgumentException("o cannot be null");
     }
 
     public static void dumpString(String[] commentSigns, String[] delimiters, Writer writer, String string, boolean isKey, boolean escUnicode) throws IOException {
@@ -128,7 +116,7 @@ final class Utils {
         return hexChars;
     }
 
-    public static void writeComment(String[] commentSigns, Writer writer, String comment, String lineSeparator, String commentSign) throws IOException {
+    public static void writeComment(String[] commentSigns, Writer writer, String comment, String commentSign) throws IOException {
         writer.write(commentSign);
         char[] chars = comment.toCharArray();
         for (int index = 0; index < chars.length; index++) {
@@ -139,7 +127,7 @@ final class Utils {
                     // "\r\n"
                     continue;
                 }
-                writer.write(lineSeparator);
+                writer.write('\n');
                 if (indexPlusOne < chars.length && matchValue(commentSigns, chars[indexPlusOne])) {
                     // return char with either comment sign afterward
                     continue;
@@ -149,7 +137,7 @@ final class Utils {
                 writer.write(chars[index]);
             }
         }
-        writer.write(lineSeparator);
+        writer.write('\n');
     }
 
 
@@ -515,10 +503,37 @@ final class Utils {
         }
     }
 
-    public static String checkLineSeparator(String lineSeparator) {
-        if (lineSeparator == null) return System.lineSeparator();
-        else if (lineSeparator.equals("\n") || lineSeparator.equals("\r\n") || lineSeparator.equals("\r")) return lineSeparator;
-        else throw new IllegalArgumentException("invalid line separator: " + lineSeparator);
+    public static boolean hasParentSection(String sectionName) {
+        return sectionName != null && sectionName.lastIndexOf('.') != -1;
+    }
+
+    public static String parentSectionName(String sectionName) {
+        if (sectionName == null) return null;
+        else {
+            int dotIndex = sectionName.lastIndexOf('.');
+            if (dotIndex == -1) return null;
+            else return sectionName.substring(0, dotIndex);
+        }
+    }
+
+    public static String plainSectionName(String sectionName) {
+        if (sectionName == null) return null;
+        else {
+            int dotIndex = sectionName.lastIndexOf('.');
+            if (dotIndex == -1) return sectionName;
+            else return sectionName.substring(dotIndex + 1);
+        }
+    }
+
+    public static String plainParentSectionName(String sectionName) {
+        if (sectionName == null) return null;
+        else {
+            String parentSectionName = parentSectionName(sectionName);
+            if (parentSectionName == null) return null;
+            int dotIndex = parentSectionName.lastIndexOf('.');
+            if (dotIndex == -1) return parentSectionName;
+            else return parentSectionName.substring(dotIndex + 1);
+        }
     }
 
 }

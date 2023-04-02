@@ -1,4 +1,4 @@
-import com.tianscar.properties.IniProperties;
+import com.tianscar.iniproperties.IniProperties;
 
 import java.io.FileWriter;
 import java.nio.file.Files;
@@ -17,8 +17,8 @@ public class SaveIniTest {
             ini.setProperty("val2", "2");
             ini.switchSection(".section_3");
             ini.setProperty("val3", "3");
-            ini.store(new FileWriter("out.ini"));
-            ini.storeToXML(Files.newOutputStream(Paths.get("out.xml")));
+            ini.store(new FileWriter("out.ini"), null);
+            ini.storeToXML(Files.newOutputStream(Paths.get("out.xml")), null);
         }
         catch (Throwable t) {
             throw new RuntimeException("SaveIni failed: \n" + t);

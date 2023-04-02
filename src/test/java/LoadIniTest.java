@@ -1,4 +1,4 @@
-import com.tianscar.properties.IniProperties;
+import com.tianscar.iniproperties.IniProperties;
 
 public class LoadIniTest {
 
