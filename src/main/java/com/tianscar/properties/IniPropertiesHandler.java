@@ -83,12 +83,12 @@ final class IniPropertiesHandler extends DefaultHandler {
 
     private static class IniTreeNode {
         public String name;
-        public CommentedProperties properties;
+        public Properties properties;
         public final List<IniTreeNode> children;
         public IniTreeNode() {
             this(null, null);
         }
-        public IniTreeNode(String name, CommentedProperties properties) {
+        public IniTreeNode(String name, Properties properties) {
             this.name = name;
             this.properties = properties;
             children = new ArrayList<>();
@@ -134,8 +134,8 @@ final class IniPropertiesHandler extends DefaultHandler {
                 writeEntries(writer, ini.globalProperties());
                 IniTreeNode tree = new IniTreeNode();
                 IniTreeNode last;
-                List<Map.Entry<String, CommentedProperties>> tmp = new LinkedList<>();
-                for (Map.Entry<String, CommentedProperties> sections : ini.sections().entrySet()) {
+                List<Map.Entry<String, Properties>> tmp = new LinkedList<>();
+                for (Map.Entry<String, Properties> sections : ini.sections().entrySet()) {
                     last = tree;
                     String sectionName = sections.getKey();
                     do {
@@ -144,7 +144,7 @@ final class IniPropertiesHandler extends DefaultHandler {
                     }
                     while (sectionName != null);
                     Collections.reverse(tmp);
-                    for (Map.Entry<String, CommentedProperties> tmpEntry : tmp) {
+                    for (Map.Entry<String, Properties> tmpEntry : tmp) {
                         sectionName = tmpEntry.getKey();
                         if (!last.hasChild(sectionName)) {
                             last.children.add(new IniTreeNode(sectionName, tmpEntry.getValue()));

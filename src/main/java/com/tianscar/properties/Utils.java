@@ -1,6 +1,8 @@
 package com.tianscar.properties;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.*;
 
 final class Utils {
@@ -19,14 +21,6 @@ final class Utils {
         return commentSignsSet.contains(value);
     }
 
-    public static String makeLineSeparator(boolean cr, boolean lf) {
-        StringBuilder builder = new StringBuilder();
-        if (cr) builder.append('\r');
-        if (lf) builder.append('\n');
-        if (builder.length() < 1) return System.lineSeparator();
-        else return builder.toString();
-    }
-
     public static void writeHeader(String[] commentSigns, String[] delimiters, Writer writer, String comments,
                                    boolean writeDate, String commentSign, String delimiter, String lineSeparator) throws IOException {
         if (!matchValue(commentSigns, commentSign)) throw new IllegalArgumentException("invalid comment sign");
@@ -42,43 +36,37 @@ final class Utils {
     public static void storeIni(IniProperties ini, String[] commentSigns, String[] delimiters, Writer writer, String comments, boolean escUnicode,
                                    boolean writeDate, String commentSign, String delimiter, String lineSeparator) throws IOException {
         writeHeader(commentSigns, delimiters, writer, comments, writeDate, commentSign, delimiter, lineSeparator);
-        writeProperties(ini.getSection(null), commentSigns, delimiters, writer, escUnicode, commentSign, delimiter, lineSeparator);
-        for (Map.Entry<String, CommentedProperties> sectionEntry : ini.sections.entrySet()) {
+        writeProperties(ini.getSection(null), commentSigns, delimiters, writer, escUnicode, delimiter, lineSeparator);
+        for (Map.Entry<String, Properties> sectionEntry : ini.sections.entrySet()) {
             writer.write('[');
             dumpString(commentSigns, delimiters, writer, sectionEntry.getKey(), false, escUnicode);
             writer.write(']');
             writer.write(lineSeparator);
-            writeProperties(sectionEntry.getValue(), commentSigns, delimiters, writer, escUnicode, commentSign, delimiter, lineSeparator);
+            writeProperties(sectionEntry.getValue(), commentSigns, delimiters, writer, escUnicode, delimiter, lineSeparator);
         }
         writer.flush();
     }
 
-    public static void storeProperties(CommentedProperties properties, String[] commentSigns, String[] delimiters,
+    public static void storeProperties(Properties properties, String[] commentSigns, String[] delimiters,
                                        Writer writer, String comments, boolean escUnicode,
                                        boolean writeDate, String commentSign, String delimiter, String lineSeparator) throws IOException {
         writeHeader(commentSigns, delimiters, writer, comments, writeDate, commentSign, delimiter, lineSeparator);
-        writeProperties(properties, commentSigns, delimiters, writer, escUnicode, commentSign, delimiter, lineSeparator);
+        writeProperties(properties, commentSigns, delimiters, writer, escUnicode, delimiter, lineSeparator);
         writer.flush();
     }
 
-    public static void writeProperties(CommentedProperties properties, String[] commentSigns, String[] delimiters,
-                                       Writer writer, boolean escUnicode,
-                                       String commentSign, String delimiter, String lineSeparator) throws IOException {
+    public static void writeProperties(Properties properties, String[] commentSigns, String[] delimiters,
+                                       Writer writer, boolean escUnicode, String delimiter, String lineSeparator) throws IOException {
         Object key;
         Object value;
-        String comment;
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             key = entry.getKey();
             value = entry.getValue();
-            comment = properties.getComment(key);
-            if (comment != null) writeComment(commentSigns, writer, comment, lineSeparator, commentSign);
             dumpString(commentSigns, delimiters, writer, convertToString(key), true, escUnicode);
             writer.write(delimiter);
             dumpString(commentSigns, delimiters, writer, convertToString(value), false, escUnicode);
             writer.write(lineSeparator);
         }
-        String footer = properties.getFooter();
-        if (footer != null) writeComment(commentSigns, writer, footer, lineSeparator, commentSign);
     }
 
     public static String convertToString(Object o) {
@@ -165,9 +153,8 @@ final class Utils {
     }
 
 
-    public static void loadIni(IniProperties ini, String[] commentSigns,
-                                      String[] delimiters, Reader reader, boolean readComments) throws IOException {
-        CommentedProperties properties;
+    public static void loadIni(IniProperties ini, String[] commentSigns, String[] delimiters, Reader reader) throws IOException {
+        Properties properties;
         ini.setSection(null, properties = ini.newSection());
         boolean readingSectionName = false;
         String lastSectionName = null;
@@ -175,9 +162,6 @@ final class Utils {
         int mode = NONE, unicode = 0, count = 0;
         char nextChar;
         char[] buf = new char[40];
-        StringBuilder comment;
-        if (readComments) comment = new StringBuilder();
-        else comment = null;
         int offset = 0, keyLength = -1, intVal;
         boolean firstChar = true;
 
@@ -270,10 +254,8 @@ final class Utils {
                                 // & 0xff not required
                                 nextChar = (char) intVal;
                                 if (nextChar == '\r' || nextChar == '\n') {
-                                    if (readComments && !readingSectionName) comment.append('\n');
                                     break;
                                 }
-                                if (readComments && !readingSectionName) comment.append((char) intVal);
                             }
                             continue;
                         }
@@ -300,10 +282,6 @@ final class Utils {
                             }
                             String temp = new String(buf, 0, offset);
                             if (readingSectionName && sectionNameBegin != -1 && sectionNameEnd != -1) {
-                                if (readComments && comment.length() > 0) {
-                                    properties.setFooter(comment.substring(0, comment.length() - 1));
-                                    comment.setLength(0);
-                                }
                                 String sectionName = temp.substring(sectionNameBegin, sectionNameEnd);
                                 if (sectionName.startsWith(".")) sectionName = lastSectionName == null ?
                                         sectionName.substring(1) : lastSectionName + sectionName;
@@ -315,10 +293,6 @@ final class Utils {
                             else if (!readingSectionName) {
                                 String key = removeQuotes(temp.substring(0, keyLength));
                                 properties.put(key, removeQuotes(temp.substring(keyLength)));
-                                if (readComments && comment.length() > 0) {
-                                    properties.setComment(key, comment.substring(0, comment.length() - 1));
-                                    comment.setLength(0);
-                                }
                             }
                         }
                         keyLength = -1;
@@ -364,22 +338,13 @@ final class Utils {
                 String sectionName = temp.substring(sectionNameBegin, sectionNameEnd);
                 if (sectionName.startsWith(".")) sectionName = lastSectionName == null ?
                         sectionName.substring(1) : lastSectionName + sectionName;
-                if (readComments && comment.length() > 0) {
-                    properties.setFooter(comment.substring(0, comment.length() - 1));
-                    comment.setLength(0);
-                }
                 ini.setSection(sectionName, (properties = ini.newSection()));
             }
             else if (!readingSectionName) {
                 String key = removeQuotes(temp.substring(0, keyLength));
                 properties.put(key, removeQuotes(temp.substring(keyLength)));
-                if (readComments && comment.length() > 0) {
-                    properties.setComment(key, comment.substring(0, comment.length() - 1));
-                    comment.setLength(0);
-                }
             }
         }
-        if (readComments && comment.length() > 0) properties.setFooter(comment.substring(0, comment.length() - 1));
     }
 
     public static String removeQuotes(String str) {
@@ -389,14 +354,11 @@ final class Utils {
     }
 
     private static final int NONE = 0, SLASH = 1, UNICODE = 2, CONTINUE = 3, KEY_DONE = 4, IGNORE = 5;
-    public static void loadProperties(CommentedProperties properties, String[] commentSigns,
-                                      String[] delimiters, Reader reader, boolean readComments) throws IOException {
+    public static void loadProperties(Properties properties, String[] commentSigns,
+                                      String[] delimiters, Reader reader) throws IOException {
         int mode = NONE, unicode = 0, count = 0;
         char nextChar;
         char[] buf = new char[40];
-        StringBuilder comment;
-        if (readComments) comment = new StringBuilder();
-        else comment = null;
         int offset = 0, keyLength = -1, intVal;
         boolean firstChar = true;
 
@@ -479,10 +441,8 @@ final class Utils {
                                 // & 0xff not required
                                 nextChar = (char) intVal;
                                 if (nextChar == '\r' || nextChar == '\n') {
-                                    if (readComments) comment.append('\n');
                                     break;
                                 }
-                                if (readComments) comment.append((char) intVal);
                             }
                             continue;
                         }
@@ -510,10 +470,6 @@ final class Utils {
                             String temp = new String(buf, 0, offset);
                             String key = temp.substring(0, keyLength);
                             properties.put(key, temp.substring(keyLength));
-                            if (readComments) {
-                                properties.setComment(key, comment.toString());
-                                comment.setLength(0);
-                            }
                         }
                         keyLength = -1;
                         offset = 0;
@@ -556,12 +512,7 @@ final class Utils {
             String temp = new String(buf, 0, offset);
             String key = temp.substring(0, keyLength);
             properties.put(key, temp.substring(keyLength));
-            if (readComments) {
-                properties.setComment(key, comment.toString());
-                comment.setLength(0);
-            }
         }
-        if (readComments && comment.length() > 0) properties.setFooter(comment.toString());
     }
 
     public static String checkLineSeparator(String lineSeparator) {

@@ -13,15 +13,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.tianscar.properties.Utils.*;
 
-public class IniProperties extends CommentedProperties {
+public class IniProperties extends FilterProperties {
 
     private static final long serialVersionUID = 6700047722366213321L;
 
     private static final String[] COMMENT_SIGNS = new String[] { "#", ";" };
     private static final String[] DELIMITERS = new String[] { "=", ":" };
 
-    protected final ConcurrentHashMap<String, CommentedProperties> sections;
-    protected final AtomicReference<CommentedProperties> globalProperties;
+    protected final ConcurrentHashMap<String, Properties> sections;
+    protected final AtomicReference<Properties> globalProperties;
 
     private final AtomicReference<String> currentSectionName = new AtomicReference<>(null);
 
@@ -33,11 +33,11 @@ public class IniProperties extends CommentedProperties {
         return this.currentSectionName.getAndSet(sectionName);
     }
 
-    public CommentedProperties parentSection() {
+    public Properties parentSection() {
         return parentSection(currentSectionName.get());
     }
 
-    public CommentedProperties parentSection(String sectionName) {
+    public Properties parentSection(String sectionName) {
         return getSection(parentSectionName(sectionName));
     }
 
@@ -115,27 +115,27 @@ public class IniProperties extends CommentedProperties {
         globalProperties = new AtomicReference<>(newSection());
     }
 
-    CommentedProperties newSection() {
-        return CommentedProperties.wrap(new Properties(propertiesInitialCapacity.get()));
+    Properties newSection() {
+        return new Properties(propertiesInitialCapacity.get());
     }
 
-    private CommentedProperties currentSection() {
+    private Properties currentSection() {
         if (currentSectionName.get() == null) return globalProperties.get();
         else if (getSection(currentSectionName.get()) == null) setSection(currentSectionName.get(), newSection());
         return getSection(currentSectionName.get());
     }
 
-    public CommentedProperties setSection(String sectionName, CommentedProperties section) {
+    public Properties setSection(String sectionName, Properties section) {
         if (sectionName == null) return globalProperties.getAndSet(section);
         else return sections.put(sectionName, section);
     }
 
-    public CommentedProperties getSection(String sectionName) {
+    public Properties getSection(String sectionName) {
         if (sectionName == null) return globalProperties.get();
         else return sections.get(sectionName);
     }
 
-    public CommentedProperties removeSection(String sectionName) {
+    public Properties removeSection(String sectionName) {
         return sections.remove(sectionName);
     }
 
@@ -144,15 +144,10 @@ public class IniProperties extends CommentedProperties {
         return currentSection();
     }
 
-    @Override
-    public Map<Object, String> comments() {
-        return currentSection().comments();
-    }
-
     public void listAll(PrintStream out) {
         out.println("-- current section: null --");
         globalProperties.get().list(out);
-        for (Map.Entry<String, CommentedProperties> sectionEntry : sections.entrySet()) {
+        for (Map.Entry<String, Properties> sectionEntry : sections.entrySet()) {
             out.println("-- current section: " + sectionEntry.getKey() +" --");
             sectionEntry.getValue().list(out);
         }
@@ -161,7 +156,7 @@ public class IniProperties extends CommentedProperties {
     public void listAll(PrintWriter out) {
         out.println("-- current section: null --");
         globalProperties.get().list(out);
-        for (Map.Entry<String, CommentedProperties> sectionEntry : sections.entrySet()) {
+        for (Map.Entry<String, Properties> sectionEntry : sections.entrySet()) {
             out.println("-- current section: " + sectionEntry.getKey() +" --");
             sectionEntry.getValue().list(out);
         }
@@ -259,7 +254,7 @@ public class IniProperties extends CommentedProperties {
 
     @Override
     public synchronized void load(InputStream inStream) throws IOException {
-        loadIni(this, COMMENT_SIGNS, DELIMITERS, new BufferedReader(new InputStreamReader(inStream, "ISO-8859-1")), true);
+        loadIni(this, COMMENT_SIGNS, DELIMITERS, new BufferedReader(new InputStreamReader(inStream, "ISO-8859-1")));
     }
 
     @Override
@@ -271,21 +266,11 @@ public class IniProperties extends CommentedProperties {
         in.close();
     }
 
-    @Override
-    public String getFooter() {
-        return currentSection().getFooter();
-    }
-
-    @Override
-    public String setFooter(String footer) {
-        return currentSection().setFooter(footer);
-    }
-
-    public Map<String, CommentedProperties> sections() {
+    public Map<String, Properties> sections() {
         return sections;
     }
 
-    public CommentedProperties globalProperties() {
+    public Properties globalProperties() {
         return globalProperties.get();
     }
 
@@ -294,21 +279,6 @@ public class IniProperties extends CommentedProperties {
         if (this == o) return true;
         if (o == null) return false;
         if (!super.equals(o)) return false;
-
-        IniProperties that = (IniProperties) o;
-
-        if (!sections.equals(that.sections)) return false;
-        if (!globalProperties.get().equals(that.globalProperties.get())) return false;
-        if (currentSectionName.get() != null ? !currentSectionName.get().equals(that.currentSectionName.get()) : that.currentSectionName.get() != null)
-            return false;
-        return getPropertiesInitialCapacity() == that.getPropertiesInitialCapacity();
-    }
-
-    @Override
-    public boolean equalsIgnoreComments(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (!super.equalsIgnoreComments(o)) return false;
 
         IniProperties that = (IniProperties) o;
 
