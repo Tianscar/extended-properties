@@ -1,6 +1,8 @@
 # Ini Properties
 Lightweight, dependency-free expansion working around `java.util.Properties`, for ini support.
 
+Requires Java 8 or later.
+
 ## Add the library to your project (gradle)
 1. Add the Maven Central repository (if not exist) to your build file:
 ```groovy
