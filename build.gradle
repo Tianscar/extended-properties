@@ -6,7 +6,7 @@ plugins {
 
 ext {
     libraryName = 'Ini Properties'
-    libraryGroupName = 'com.tianscar.iniproperties'
+    libraryGroupName = 'com.tianscar.ini'
     libraryVendorName = 'Tianscar'
 
     libraryVersionCode = 1
@@ -45,7 +45,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = libraryGroupName
-            artifactId = rootProject.name
+            artifactId = 'properties'
             version = libraryVersionName
             from components.java
             pom {
