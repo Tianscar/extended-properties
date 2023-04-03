@@ -16,7 +16,7 @@ repositories {
 ```groovy
 dependencies {
     ...
-    implementation 'com.tianscar.ini:properties:1.0.0'
+    implementation 'com.tianscar.properties:extended-properties:1.0.0'
 }
 ```
 
